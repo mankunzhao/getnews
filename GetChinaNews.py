@@ -1,6 +1,9 @@
 #coding=UTF-8
 import re,urllib,socket,os,datetime,sys,time
 from sgmllib import SGMLParser
+#20140102增加内容：添加文件列表配置项，统一输出文件的编码(IFENG的默认输出为UTF8，调整为gb2312)，得到获取的新闻列表并按照发表时间排序输出到newslist.txt
+reload(sys)
+sys.setdefaultencoding('utf8')
 """
 默认站点列表，各站点的标签及其说明如下：
 中国新闻网(ZXW)
@@ -12,6 +15,7 @@ from sgmllib import SGMLParser
 #下载配置
 defaultSiteList = ["ZXW","163","RMW","SINA","IFENG"] #新闻源站点设置
 argD = os.getcwd()+os.path.sep+'dataNews'#default目录
+newsListFilePath = os.getcwd()+os.path.sep
 
 
 
@@ -91,6 +95,7 @@ class GetChinaNews():
 		self.strDay = "02"
 		self.Url = "This is the roll news page Url."
 		self.tag  = 0
+		self.newsList = []
 		
 	
 	#set the date range that get news
@@ -145,7 +150,7 @@ class GetChinaNews():
 		newsUrl = "NONE"
 		for i in m:
 			try:
-				
+				#从网页上获取新闻属性
 				newsTitle,newsUrl,newsTime = self.getNewsProperties(site,i)
 				#special for ZXW
 				if site == "ZXW" and newsUrl[:4] != "http":
@@ -173,6 +178,9 @@ class GetChinaNews():
 					pp = re.compile(r'[\d]{2}:[\d]{2}<')
 					RmwTime = pp.search(htmlSource).group()
 					newsTime = newsTime + " " + RmwTime[:-1]+":00"
+				#凤凰资讯的获取的时间没有秒
+				if site == "IFENG":
+					newsTime += ":00"
 					
 				#use Parser to get text content of news,stored in strText
 				getcontent = GetNewsParser(site)
@@ -184,8 +192,16 @@ class GetChinaNews():
 				fileName = site+"-"+str(self.tag)
 				self.tag = self.tag + 1
 				#store in .txt files
+				txtSource = newsTitle+"\n"+newsUrl+"\n"+newsTime+"\n"+strText
+				#将IFENG的默认编码设置为gb2312（与大部分一致）
+				if site == "IFENG":
+					txtSource = txtSource.encode('gb2312','ignore')
 				with open(self.dir_name+fileName+'.txt','w+') as f:
-					f.write(newsTitle+"\n"+newsUrl+"\n"+newsTime+"\n"+strText)
+					f.write(txtSource)
+				
+				#将获取的新闻保存以便排序，新闻属性包括（标题、文件路径、发表时间、来源网站）
+				stime = time.mktime(time.strptime(newsTime, '%Y-%m-%d %H:%M:%S'))
+				self.newsList.append((newsTitle,self.dir_name+fileName,stime,site))
 			except KeyboardInterrupt:
 				print "Stopped By User."
 				sys.exit(0)
@@ -244,6 +260,12 @@ class GetChinaNews():
 						if i == "RMW":
 							socket.setdefaulttimeout(50)
 						self.getNewsFromSite(i)
+			#获取的新闻按照时间排序并输出到newsList.txt文件中
+			self.newsList.sort(key=lambda d:d[2])
+			with open(newsListFilePath+'newslist.txt','wa') as newslistFile:
+				newslistFile.write('===========NEWS_LIST'+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))+'============')
+				for i in self.newsList:
+					newslistFile.write(i[3]+"###"+i[0]+"###"+i[1]+"###"+str(i[2])+"\n")
 		except KeyboardInterrupt:
 			print "Stopped By User."
 			sys.exit(0)
