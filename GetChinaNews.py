@@ -195,13 +195,14 @@ class GetChinaNews():
 				txtSource = newsTitle+"\n"+newsUrl+"\n"+newsTime+"\n"+strText
 				#将IFENG的默认编码设置为gb2312（与大部分一致）
 				if site == "IFENG":
+					newsTitle = newsTitle.encode('gb2312','ignore')
 					txtSource = txtSource.encode('gb2312','ignore')
 				with open(self.dir_name+fileName+'.txt','w+') as f:
 					f.write(txtSource)
 				
 				#将获取的新闻保存以便排序，新闻属性包括（标题、文件路径、发表时间、来源网站）
 				stime = time.mktime(time.strptime(newsTime, '%Y-%m-%d %H:%M:%S'))
-				self.newsList.append((newsTitle,self.dir_name+fileName,stime,site))
+				self.newsList.append((newsTitle,self.dir_name+fileName+'.txt',stime,site))
 			except KeyboardInterrupt:
 				print "Stopped By User."
 				sys.exit(0)
@@ -263,7 +264,7 @@ class GetChinaNews():
 			#获取的新闻按照时间排序并输出到newsList.txt文件中
 			self.newsList.sort(key=lambda d:d[2])
 			with open(newsListFilePath+'newslist.txt','wa') as newslistFile:
-				newslistFile.write('===========NEWS_LIST'+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))+'============')
+				newslistFile.write('===========NEWS_LIST'+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))+'============\n')
 				for i in self.newsList:
 					newslistFile.write(i[3]+"###"+i[0]+"###"+i[1]+"###"+str(i[2])+"\n")
 		except KeyboardInterrupt:
@@ -342,4 +343,3 @@ else:
 				
 G = GetChinaNews(str_start_time=argST,str_end_time=argED,dirName=argD,siteList=defaultSiteList,timeLimit=argT)
 G.getChinaNews()		
-
