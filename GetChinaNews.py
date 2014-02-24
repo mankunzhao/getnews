@@ -28,7 +28,7 @@ defaultSockTimeLimit = 20
 #定义提取的div的属性值，每个网站不一样
 dirForDiv = {'ZXW':['class','left_zw'],'163':['id','endText'],'RMW':['id','p_content'],'SINA':['id','artibody'],'IFENG':['id','main_content']}
 #定义从滚动新闻页面提取出新闻Url的正则表达式
-dirRegex = {'ZXW':r'<div class=\"dd_bt\"><a href=[^<>]*>[^<>]*</a></div><div class=\"dd_time\">[\d]{2}-[\d]{1,2} [\d]{2}:[\d]{2}</div>','RMW':r'<a href[^<>]*>[^<>]*</a>\[[\d]{2}[^<>]*[\d]{2}:[\d]{2}\]<br>','163':r't\"[^}]*','SINA':r',title[^}]*','IFENG':r'<h4>[\d]{2}/[\d]{2} [\d]{2}:[\d]{2}</h4><a href=[^<>]*>[^<]*'}
+dirRegex = {'ZXW':r'<div class=\"dd_bt\"><a href=[^<>]*>[^<>]*</a></div><div class=\"dd_time\">[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}</div>','RMW':r'<a href[^<>]*>[^<>]*</a>\[[\d]{2}[^<>]*[\d]{2}:[\d]{2}\]<br>','163':r't\"[^}]*','SINA':r',title[^}]*','IFENG':r'<h4>[\d]{2}/[\d]{2} [\d]{2}:[\d]{2}</h4><a href=[^<>]*>[^<]*'}
 """
 各个网站的滚动新闻页面：
 ZXW:"http://www.chinanews.com/scroll-news/" + Year + "/" + Month + Day + "/news.shtml"
